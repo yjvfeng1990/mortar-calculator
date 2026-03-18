@@ -310,7 +310,9 @@ function drawRangeCircle() {
         strokeOpacity: 0.8, // 边框透明度
         fillColor: '#FF0000', // 填充颜色：红色
         fillOpacity: 0.15, // 填充透明度：15%（半透明）
-        zIndex: 10 // 层级
+        zIndex: 1, // 层级（设置为较低，确保在标记下方）
+        bubble: true, // 允许事件冒泡
+        clickable: false // 禁止圆形本身可点击，允许点击穿透
     });
     
     map.add(rangeCircle);
