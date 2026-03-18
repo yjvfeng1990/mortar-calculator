@@ -81,6 +81,7 @@
 <div class="panel">
     <button onclick="getMyPos()">获取炮位坐标</button>
     <button id="mapTypeBtn" onclick="toggleMapType()" style="background:#28a745;margin-top:8px;">切换地图类型 (卫星)</button>
+    <button id="gyroBtn" onclick="toggleGyroscope()" style="background:#007bff;margin-top:8px;">开启陀螺仪</button>
 
     <div class="title">迫击炮型号 & 装药</div>
     <select id="mortarType">
@@ -128,6 +129,8 @@ let isSatellite = true; // 当前是否为卫星地图
 let toastTimeout = null; // 气泡通知定时器
 let deviceOrientation = null; // 设备方向（陀螺仪数据）
 let isMobileDevice = false; // 是否为移动设备
+let gyroEnabled = false; // 陀螺仪是否开启
+let gyroBtn = null; // 陀螺仪按钮
 
 const mortarData = {
     60: {0:85, 1:100, 2:130, 3:150, 4:180},
@@ -162,6 +165,10 @@ function initDeviceOrientation() {
 
 // 处理设备方向变化
 function handleOrientation(event) {
+    if (!gyroEnabled) {
+        return; // 陀螺仪未开启，不处理
+    }
+    
     if (!event.alpha && !event.beta && !event.gamma) {
         return; // 没有方向数据
     }
@@ -187,6 +194,29 @@ function handleOrientation(event) {
     // 如果有炮位坐标，根据设备方向旋转地图
     if (lat1 && lng1 && map) {
         rotateMapByOrientation();
+    }
+}
+
+// 切换陀螺仪状态
+function toggleGyroscope() {
+    gyroEnabled = !gyroEnabled;
+    
+    if (gyroBtn) {
+        if (gyroEnabled) {
+            gyroBtn.innerText = '关闭陀螺仪';
+            gyroBtn.style.background = '#dc3545';
+            showToast('陀螺仪已开启，地图将自动旋转', 'success');
+            // 初始化陀螺仪监听
+            initDeviceOrientation();
+        } else {
+            gyroBtn.innerText = '开启陀螺仪';
+            gyroBtn.style.background = '#007bff';
+            showToast('陀螺仪已关闭', 'info');
+            // 重置地图旋转
+            if (map) {
+                map.setRotation(0);
+            }
+        }
     }
 }
 
@@ -243,7 +273,16 @@ function initMap() {
         
         // 移动设备添加陀螺仪监听
         if (isMobileDevice && window.DeviceOrientationEvent) {
-            initDeviceOrientation();
+            gyroBtn = document.getElementById('gyroBtn');
+            if (gyroBtn) {
+                gyroBtn.style.display = 'block';
+            }
+        } else {
+            // 非移动设备或不支持陀螺仪，隐藏按钮
+            gyroBtn = document.getElementById('gyroBtn');
+            if (gyroBtn) {
+                gyroBtn.style.display = 'none';
+            }
         }
         
         // 显示地图加载成功的气泡通知
