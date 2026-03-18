@@ -126,6 +126,8 @@ let rangeCircle = null; // 最大射程圆形
 let map = null;
 let isSatellite = true; // 当前是否为卫星地图
 let toastTimeout = null; // 气泡通知定时器
+let deviceOrientation = null; // 设备方向（陀螺仪数据）
+let isMobileDevice = false; // 是否为移动设备
 
 const mortarData = {
     60: {0:85, 1:100, 2:130, 3:150, 4:180},
@@ -139,6 +141,76 @@ const maxRangeData = {
     82: {0:1200, 1:1800, 2:2400, 3:3000, 4:3600},
     120:{0:2000, 1:3000, 2:4000, 3:5000, 4:6000}
 };
+
+// 初始化设备方向（陀螺仪）
+function initDeviceOrientation() {
+    console.log('初始化设备方向监听...');
+    
+    // 检查设备方向API是否可用
+    if (window.DeviceOrientationEvent && 'ondeviceorientationabsolute' in window) {
+        // 使用绝对方向事件（更准确）
+        window.addEventListener('deviceorientationabsolute', handleOrientation);
+        console.log('使用 deviceorientationabsolute 事件');
+    } else if ('ondeviceorientation' in window) {
+        // 使用普通方向事件
+        window.addEventListener('deviceorientation', handleOrientation);
+        console.log('使用 deviceorientation 事件');
+    } else {
+        console.log('设备方向API不可用');
+    }
+}
+
+// 处理设备方向变化
+function handleOrientation(event) {
+    if (!event.alpha && !event.beta && !event.gamma) {
+        return; // 没有方向数据
+    }
+    
+    // 获取设备方向数据
+    const alpha = event.alpha; // Z轴旋转（0-360度）
+    const beta = event.beta; // X轴旋转（-180到180度）
+    const gamma = event.gamma; // Y轴旋转（-90到90度）
+    
+    // 保存设备方向
+    deviceOrientation = {
+        alpha: alpha,
+        beta: beta,
+        gamma: gamma
+    };
+    
+    console.log('设备方向变化:', {
+        alpha: alpha.toFixed(1) + '°',
+        beta: beta.toFixed(1) + '°',
+        gamma: gamma.toFixed(1) + '°'
+    });
+    
+    // 如果有炮位坐标，根据设备方向旋转地图
+    if (lat1 && lng1 && map) {
+        rotateMapByOrientation();
+    }
+}
+
+// 根据设备方向旋转地图
+function rotateMapByOrientation() {
+    if (!deviceOrientation || !map) {
+        return;
+    }
+    
+    // 使用alpha值（方位角）旋转地图
+    // alpha: 0-360度，表示设备相对于正北方的旋转角度
+    const rotation = deviceOrientation.alpha;
+    
+    if (rotation !== null && !isNaN(rotation)) {
+        // 高德地图使用旋转角度（0-360度）
+        // 将alpha值转换为地图旋转角度
+        const mapRotation = rotation;
+        
+        // 旋转地图
+        map.setRotation(mapRotation);
+        
+        console.log('地图旋转角度:', mapRotation.toFixed(1) + '°');
+    }
+}
 
 // 初始化地图
 function initMap() {
@@ -163,10 +235,16 @@ function initMap() {
             mapConfig.touchZoom = true;
             mapConfig.scrollWheel = false;
             mapConfig.doubleClickZoom = true;
+            isMobileDevice = true; // 标记为移动设备
         }
         
         map = new AMap.Map('map', mapConfig);
         console.log('地图初始化成功，设备类型:', isMobile ? '手机' : isTablet ? '平板' : 'PC');
+        
+        // 移动设备添加陀螺仪监听
+        if (isMobileDevice && window.DeviceOrientationEvent) {
+            initDeviceOrientation();
+        }
         
         // 显示地图加载成功的气泡通知
         showToast('地图加载成功！', 'success');
