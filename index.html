@@ -397,24 +397,53 @@ function getMyPos() {
             }
             
             // 移除旧的炮位标记
-            if (markerMe) map.remove(markerMe);
+            if (markerMe) {
+                console.log('移除旧标记:', markerMe.getPosition());
+                map.remove(markerMe);
+                markerMe = null;
+            }
             
             // 创建新的炮位标记
+            const markerPosition = [lng1, lat1];
+            console.log('创建新标记位置:', markerPosition);
+            
             markerMe = new AMap.Marker({
-                position: [lng1, lat1], // 高德地图坐标格式：[经度, 纬度]
+                position: markerPosition, // 高德地图坐标格式：[经度, 纬度]
                 title: "炮位",
-                animation: 'AMAP_ANIMATION_DROP' // 添加掉落动画
+                animation: 'AMAP_ANIMATION_DROP', // 添加掉落动画
+                zIndex: 100 // 确保标记在最上层
             });
             map.add(markerMe);
+            
+            // 验证标记位置是否正确设置
+            const actualPosition = markerMe.getPosition();
+            console.log('标记实际位置:', actualPosition);
+            console.log('标记位置验证:', {
+                期望: markerPosition,
+                实际: [actualPosition.getLng(), actualPosition.getLat()],
+                匹配: actualPosition.getLng() === lng1 && actualPosition.getLat() === lat1
+            });
             
             // 显示炮位坐标标签
             showLabelMe();
             
             // 地图回到炮位坐标显示，确保使用最新坐标
             if (map) {
+                const centerPosition = [lng1, lat1];
+                console.log('设置地图中心点:', centerPosition);
+                
                 // 高德地图坐标格式：[经度, 纬度]
-                map.setCenter([lng1, lat1]);
+                map.setCenter(centerPosition);
                 map.setZoom(16); // 设置合适的缩放级别
+                
+                // 验证地图中心点是否正确设置
+                const actualCenter = map.getCenter();
+                console.log('地图实际中心点:', actualCenter);
+                console.log('地图中心点验证:', {
+                    期望: centerPosition,
+                    实际: [actualCenter.getLng(), actualCenter.getLat()],
+                    匹配: actualCenter.getLng() === lng1 && actualCenter.getLat() === lat1
+                });
                 
                 // 不使用 setFitView，避免干扰炮位位置显示
                 // map.setFitView();
