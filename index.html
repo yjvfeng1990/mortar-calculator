@@ -122,6 +122,7 @@ let polyline = null;
 let trajectoryPolyline = null; // 弹道抛物线
 let trajectoryLabels = []; // 弹道轨迹标签
 let distanceLabel = null;
+let rangeCircle = null; // 最大射程圆形
 let map = null;
 let isSatellite = true; // 当前是否为卫星地图
 let toastTimeout = null; // 气泡通知定时器
@@ -130,6 +131,13 @@ const mortarData = {
     60: {0:85, 1:100, 2:130, 3:150, 4:180},
     82: {0:120, 1:150, 2:180, 3:210, 4:240},
     120:{0:160, 1:200, 2:240, 3:280, 4:320}
+};
+
+// 最大射程数据（单位：米）
+const maxRangeData = {
+    60: {0:800, 1:1200, 2:1600, 3:2000, 4:2500},
+    82: {0:1200, 1:1800, 2:2400, 3:3000, 4:3600},
+    120:{0:2000, 1:3000, 2:4000, 3:5000, 4:6000}
 };
 
 // 初始化地图
@@ -267,6 +275,52 @@ function toggleMapType() {
         isSatellite = true;
         if (btn) btn.innerText = '切换地图类型 (卫星)';
     }
+}
+
+// ------------------------------
+// 1. 定位功能
+// ------------------------------
+
+// 绘制最大射程圆形
+function drawRangeCircle() {
+    // 如果没有炮位坐标，不绘制
+    if (!lat1 || !lng1 || !map) {
+        return;
+    }
+    
+    // 移除旧的圆形
+    if (rangeCircle) {
+        map.remove(rangeCircle);
+        rangeCircle = null;
+    }
+    
+    // 获取当前迫击炮型号和装药量
+    const mortarType = document.getElementById('mortarType').value;
+    const chargeLevel = document.getElementById('chargeLevel').value;
+    
+    // 获取最大射程
+    const maxRange = maxRangeData[mortarType][chargeLevel];
+    
+    // 绘制圆形
+    rangeCircle = new AMap.Circle({
+        center: [lng1, lat1], // 圆心位置（炮位坐标）
+        radius: maxRange, // 半径（最大射程，单位：米）
+        strokeColor: '#FF0000', // 边框颜色：红色
+        strokeWeight: 2, // 边框宽度
+        strokeOpacity: 0.8, // 边框透明度
+        fillColor: '#FF0000', // 填充颜色：红色
+        fillOpacity: 0.15, // 填充透明度：15%（半透明）
+        zIndex: 10 // 层级
+    });
+    
+    map.add(rangeCircle);
+    
+    console.log('绘制最大射程圆形:', {
+        炮位: [lat1, lng1],
+        迫击炮型号: mortarType + 'mm',
+        装药量: chargeLevel + '号',
+        最大射程: maxRange + '米'
+    });
 }
 
 // ------------------------------
@@ -507,6 +561,9 @@ function getMyPos() {
             // 显示炮位坐标标签
             showLabelMe();
             
+            // 绘制最大射程圆形
+            drawRangeCircle();
+            
             // 地图回到炮位坐标显示，确保使用最新坐标
             if (map) {
                 const centerPosition = [lng1, lat1];
@@ -616,6 +673,9 @@ function setManualPos() {
     // 显示炮位坐标标签
     showLabelMe();
     
+    // 绘制最大射程圆形
+    drawRangeCircle();
+    
     // 地图回到炮位坐标显示
     map.setCenter([lng1, lat1]);
     map.setZoom(16); // 设置合适的缩放级别
@@ -663,8 +723,14 @@ function showLabelMe() {
 }
 
 // 参数改变重算
-document.getElementById('mortarType').onchange = calcAll;
-document.getElementById('chargeLevel').onchange = calcAll;
+document.getElementById('mortarType').onchange = function() {
+    calcAll();
+    drawRangeCircle(); // 更新最大射程圆形
+};
+document.getElementById('chargeLevel').onchange = function() {
+    calcAll();
+    drawRangeCircle(); // 更新最大射程圆形
+};
 
 function rad(x) { return x*Math.PI/180 }
 
