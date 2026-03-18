@@ -195,6 +195,11 @@ function handleOrientation(event) {
     // 更新方位角显示
     updateAzimuthDisplay(alpha);
     
+    // 更新炮位标签的陀螺仪数据
+    if (lat1 && lng1) {
+        updateLabelMeWithGyro(alpha, beta);
+    }
+    
     // 如果有炮位坐标，根据设备方向旋转地图
     if (lat1 && lng1 && map) {
         rotateMapByOrientation();
@@ -222,6 +227,10 @@ function toggleGyroscope() {
             }
             // 重置方位角显示
             updateAzimuthDisplay(0);
+            // 重置炮位标签的陀螺仪数据
+            if (lat1 && lng1) {
+                updateLabelMeWithGyro(0, 0);
+            }
         }
     }
 }
@@ -233,6 +242,49 @@ function updateAzimuthDisplay(azimuth) {
         // 确保方位角在 0-360 度范围内
         const normalizedAzimuth = (azimuth % 360 + 360) % 360;
         azimuthValue.textContent = normalizedAzimuth.toFixed(1) + '°';
+    }
+}
+
+// 根据陀螺仪数据更新炮位标签
+function updateLabelMeWithGyro(azimuth, pitch) {
+    if(!lat1||!lng1) return;
+    
+    // 确保方位角在 0-360 度范围内
+    const normalizedAzimuth = (azimuth % 360 + 360) % 360;
+    
+    // 处理俯仰角（beta值），转换为更直观的角度
+    // beta: -180到180度，我们将其转换为 0-90 度的仰角
+    let normalizedPitch = Math.abs(pitch);
+    if (normalizedPitch > 90) {
+        normalizedPitch = 180 - normalizedPitch;
+    }
+    
+    // 获取当前迫击炮型号和装药级别
+    const mortarType = document.getElementById('mortarType').value;
+    const mortarTypeName = mortarType + 'mm';
+    const chargeLevel = document.getElementById('chargeLevel').value;
+    
+    const labelText = '炮位 (' + mortarTypeName + ')\n装药: ' + chargeLevel + '号\n' + lat1.toFixed(4) + ', ' + lng1.toFixed(4) + '\n方位:' + normalizedAzimuth.toFixed(1) + '° 仰角:' + normalizedPitch.toFixed(1) + '°';
+    
+    // 更新或创建炮位标签
+    if (labelMe) {
+        labelMe.setText(labelText);
+    } else {
+        // 如果标签不存在，创建新标签
+        labelMe = new AMap.Text({
+            text: labelText,
+            position: [lng1, lat1],
+            offset: new AMap.Pixel(0, -60),
+            style: {
+                'background-color': '#0f0',
+                'color': '#000',
+                'padding': '4px 12px',
+                'border-radius': '4px',
+                'font-size': '11px',
+                'border': '1px solid #000'
+            }
+        });
+        map.add(labelMe);
     }
 }
 
