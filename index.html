@@ -415,6 +415,9 @@ function getMyPos() {
             });
             map.add(markerMe);
             
+            // 强制刷新地图，确保标记正确显示
+            map.setFitView([markerMe], false, [50, 50, 50, 50], 16);
+            
             // 验证标记位置是否正确设置
             const actualPosition = markerMe.getPosition();
             console.log('标记实际位置:', actualPosition);
@@ -434,7 +437,6 @@ function getMyPos() {
                 
                 // 高德地图坐标格式：[经度, 纬度]
                 map.setCenter(centerPosition);
-                map.setZoom(16); // 设置合适的缩放级别
                 
                 // 验证地图中心点是否正确设置
                 const actualCenter = map.getCenter();
@@ -444,9 +446,6 @@ function getMyPos() {
                     实际: [actualCenter.getLng(), actualCenter.getLat()],
                     匹配: actualCenter.getLng() === lng1 && actualCenter.getLat() === lat1
                 });
-                
-                // 不使用 setFitView，避免干扰炮位位置显示
-                // map.setFitView();
             }
             
             // 如果目标点已设置，重新计算并绘制连线
