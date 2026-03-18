@@ -272,6 +272,40 @@ function toggleMapType() {
 // ------------------------------
 // 1. 定位功能
 // ------------------------------
+
+// WGS84 坐标系转 GCJ02 坐标系（使用高德地图坐标转换服务）
+function wgs84ToGcj02(lat, lng, callback) {
+    // 使用高德地图的坐标转换服务
+    if (typeof AMap !== 'undefined' && AMap.convertFrom) {
+        // 使用高德地图的坐标转换 API
+        AMap.convertFrom('gps', [lng, lat], function(status, result) {
+            if (status === 'complete') {
+                callback({
+                    lat: result[1],
+                    lng: result[0]
+                });
+            } else {
+                console.error('坐标转换失败:', status);
+                // 转换失败时使用原始坐标
+                callback({
+                    lat: lat,
+                    lng: lng
+                });
+            }
+        });
+    } else {
+        // 高德地图 API 不可用时，使用简化的转换算法
+        const PI = 3.1415926535897932384626;
+        const dLat = -100.0 + 2.0 * lng + 3.0 * lat + 0.2 * lng * lng + 0.1 * lng * lat;
+        const dLng = 100.0 + 3.0 * lng + 0.2 * lat + 0.1 * lng * lng + 0.2 * lat * lat;
+        
+        callback({
+            lat: lat + dLat / 10000.0,
+            lng: lng + dLng / 10000.0
+        });
+    }
+}
+
 function getMyPos() {
     // 检查是否支持定位功能
     if (!navigator.geolocation) {
@@ -325,78 +359,87 @@ function getMyPos() {
             原始纬度: newLat,
             原始经度: newLng,
             定位精度: accuracy + '米',
-            设备类型: isIOS ? 'iOS' : isAndroid ? 'Android' : 'PC'
+            设备类型: isIOS ? 'iOS' : isAndroid ? 'Android' : 'PC',
+            坐标系: 'WGS84'
         });
         
-        // 验证坐标有效性
-        if (isNaN(newLat) || isNaN(newLng) || newLat === 0 || newLng === 0) {
-            console.error('坐标验证失败:', { 纬度: newLat, 经度: newLng });
-            showToast('获取的坐标无效，请重试或手动输入', 'error');
-            showManualInput();
-            return;
-        }
-        
-        // 更新全局坐标变量
-        lat1 = newLat;
-        lng1 = newLng;
-        
-        console.log('坐标更新完成:', { 纬度: lat1, 经度: lng1 });
-        
-        // 更新界面坐标显示
-        const lat1Element = document.getElementById('lat1');
-        const lng1Element = document.getElementById('lng1');
-        if (lat1Element) {
-            lat1Element.innerText = lat1.toFixed(6);
-            console.log('界面纬度更新:', lat1Element.innerText);
-        }
-        if (lng1Element) {
-            lng1Element.innerText = lng1.toFixed(6);
-            console.log('界面经度更新:', lng1Element.innerText);
-        }
-        
-        // 移除旧的炮位标记
-        if (markerMe) map.remove(markerMe);
-        
-        // 创建新的炮位标记
-        markerMe = new AMap.Marker({
-            position: [lng1, lat1], // 高德地图坐标格式：[经度, 纬度]
-            title: "炮位",
-            animation: 'AMAP_ANIMATION_DROP' // 添加掉落动画
-        });
-        map.add(markerMe);
-        
-        // 显示炮位坐标标签
-        showLabelMe();
-        
-        // 地图回到炮位坐标显示，确保使用最新坐标
-        if (map) {
-            // 高德地图坐标格式：[经度, 纬度]
-            map.setCenter([lng1, lat1]);
-            map.setZoom(16); // 设置合适的缩放级别
+        // 坐标系转换：WGS84 -> GCJ02 (高德地图使用的坐标系)
+        wgs84ToGcj02(newLat, newLng, function(convertedCoords) {
+            console.log('坐标转换:', {
+                WGS84: { 纬度: newLat, 经度: newLng },
+                GCJ02: { 纬度: convertedCoords.lat, 经度: convertedCoords.lng }
+            });
             
-            // 不使用 setFitView，避免干扰炮位位置显示
-            // map.setFitView();
-        }
-        
-        // 如果目标点已设置，重新计算并绘制连线
-        if (lat2 && lng2) {
-            calcAll();
-        }
-        
-        // 显示定位成功通知，包含精度信息
-        let successMsg = '定位成功！地图已回到炮位位置';
-        if (accuracy) {
-            successMsg += `\n定位精度: ${accuracy.toFixed(0)}米`;
-        }
-        showToast(successMsg, 'success');
-        
-        // 控制台输出调试信息
-        console.log('定位成功:', {
-            纬度: lat1,
-            经度: lng1,
-            精度: accuracy + '米',
-            设备: isIOS ? 'iOS' : isAndroid ? 'Android' : 'PC'
-        });
+            // 验证坐标有效性
+            if (isNaN(convertedCoords.lat) || isNaN(convertedCoords.lng) || convertedCoords.lat === 0 || convertedCoords.lng === 0) {
+                console.error('坐标验证失败:', { 纬度: convertedCoords.lat, 经度: convertedCoords.lng });
+                showToast('获取的坐标无效，请重试或手动输入', 'error');
+                showManualInput();
+                return;
+            }
+            
+            // 更新全局坐标变量（使用转换后的坐标）
+            lat1 = convertedCoords.lat;
+            lng1 = convertedCoords.lng;
+            
+            console.log('坐标更新完成:', { 纬度: lat1, 经度: lng1 });
+            
+            // 更新界面坐标显示
+            const lat1Element = document.getElementById('lat1');
+            const lng1Element = document.getElementById('lng1');
+            if (lat1Element) {
+                lat1Element.innerText = lat1.toFixed(6);
+                console.log('界面纬度更新:', lat1Element.innerText);
+            }
+            if (lng1Element) {
+                lng1Element.innerText = lng1.toFixed(6);
+                console.log('界面经度更新:', lng1Element.innerText);
+            }
+            
+            // 移除旧的炮位标记
+            if (markerMe) map.remove(markerMe);
+            
+            // 创建新的炮位标记
+            markerMe = new AMap.Marker({
+                position: [lng1, lat1], // 高德地图坐标格式：[经度, 纬度]
+                title: "炮位",
+                animation: 'AMAP_ANIMATION_DROP' // 添加掉落动画
+            });
+            map.add(markerMe);
+            
+            // 显示炮位坐标标签
+            showLabelMe();
+            
+            // 地图回到炮位坐标显示，确保使用最新坐标
+            if (map) {
+                // 高德地图坐标格式：[经度, 纬度]
+                map.setCenter([lng1, lat1]);
+                map.setZoom(16); // 设置合适的缩放级别
+                
+                // 不使用 setFitView，避免干扰炮位位置显示
+                // map.setFitView();
+            }
+            
+            // 如果目标点已设置，重新计算并绘制连线
+            if (lat2 && lng2) {
+                calcAll();
+            }
+            
+            // 显示定位成功通知，包含精度信息
+            let successMsg = '定位成功！地图已回到炮位位置';
+            if (accuracy) {
+                successMsg += `\n定位精度: ${accuracy.toFixed(0)}米`;
+            }
+            showToast(successMsg, 'success');
+            
+            // 控制台输出调试信息
+            console.log('定位成功:', {
+                纬度: lat1,
+                经度: lng1,
+                精度: accuracy + '米',
+                设备: isIOS ? 'iOS' : isAndroid ? 'Android' : 'PC'
+            });
+        }); // 坐标转换回调函数结束
     }, err => {
         let errorMsg = "定位失败";
         switch(err.code) {
