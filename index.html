@@ -320,8 +320,17 @@ function getMyPos() {
         const newLng = pos.coords.longitude;
         const accuracy = pos.coords.accuracy; // 定位精度（米）
         
+        // 控制台输出调试信息
+        console.log('定位数据获取:', {
+            原始纬度: newLat,
+            原始经度: newLng,
+            定位精度: accuracy + '米',
+            设备类型: isIOS ? 'iOS' : isAndroid ? 'Android' : 'PC'
+        });
+        
         // 验证坐标有效性
         if (isNaN(newLat) || isNaN(newLng) || newLat === 0 || newLng === 0) {
+            console.error('坐标验证失败:', { 纬度: newLat, 经度: newLng });
             showToast('获取的坐标无效，请重试或手动输入', 'error');
             showManualInput();
             return;
@@ -331,18 +340,26 @@ function getMyPos() {
         lat1 = newLat;
         lng1 = newLng;
         
+        console.log('坐标更新完成:', { 纬度: lat1, 经度: lng1 });
+        
         // 更新界面坐标显示
         const lat1Element = document.getElementById('lat1');
         const lng1Element = document.getElementById('lng1');
-        if (lat1Element) lat1Element.innerText = lat1.toFixed(6);
-        if (lng1Element) lng1Element.innerText = lng1.toFixed(6);
+        if (lat1Element) {
+            lat1Element.innerText = lat1.toFixed(6);
+            console.log('界面纬度更新:', lat1Element.innerText);
+        }
+        if (lng1Element) {
+            lng1Element.innerText = lng1.toFixed(6);
+            console.log('界面经度更新:', lng1Element.innerText);
+        }
         
         // 移除旧的炮位标记
         if (markerMe) map.remove(markerMe);
         
         // 创建新的炮位标记
         markerMe = new AMap.Marker({
-            position: [lng1, lat1],
+            position: [lng1, lat1], // 高德地图坐标格式：[经度, 纬度]
             title: "炮位",
             animation: 'AMAP_ANIMATION_DROP' // 添加掉落动画
         });
@@ -353,11 +370,12 @@ function getMyPos() {
         
         // 地图回到炮位坐标显示，确保使用最新坐标
         if (map) {
+            // 高德地图坐标格式：[经度, 纬度]
             map.setCenter([lng1, lat1]);
             map.setZoom(16); // 设置合适的缩放级别
             
-            // 强制地图重新渲染，确保最新坐标显示
-            map.setFitView();
+            // 不使用 setFitView，避免干扰炮位位置显示
+            // map.setFitView();
         }
         
         // 如果目标点已设置，重新计算并绘制连线
