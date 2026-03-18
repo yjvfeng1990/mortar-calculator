@@ -161,6 +161,40 @@ function initDeviceOrientation() {
         console.log('使用 deviceorientation 事件');
     } else {
         console.log('设备方向API不可用');
+        showToast('设备不支持陀螺仪功能', 'error');
+        return;
+    }
+    
+    // 检查是否需要权限请求
+    checkGyroscopePermission();
+}
+
+// 检查陀螺仪权限
+function checkGyroscopePermission() {
+    console.log('检查陀螺仪权限...');
+    
+    // 检查是否支持 DeviceOrientationEvent.requestPermission
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        console.log('需要请求陀螺仪权限');
+        
+        // 请求权限
+        DeviceOrientationEvent.requestPermission()
+            .then(permissionState => {
+                if (permissionState === 'granted') {
+                    console.log('陀螺仪权限已授予');
+                    showToast('陀螺仪权限已授予', 'success');
+                } else {
+                    console.log('陀螺仪权限被拒绝');
+                    showToast('陀螺仪权限被拒绝，请在设置中允许访问', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('请求陀螺仪权限失败:', error);
+                showToast('请求陀螺仪权限失败', 'error');
+            });
+    } else {
+        console.log('不需要请求陀螺仪权限');
+        showToast('陀螺仪已就绪', 'success');
     }
 }
 
