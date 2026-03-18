@@ -874,8 +874,13 @@ function drawLine() {
         labelPositions.forEach(position => {
             const index = Math.floor(position * (trajectoryData.length - 1));
             const data = trajectoryData[index];
-            
+
             if (data) {
+                // 高度为0时不显示标签
+                if (data.height === 0) {
+                    return;
+                }
+
                 const label = new AMap.Text({
                     position: data.point,
                     text: `高度: ${data.height.toFixed(1)}m\n速度: ${data.speed.toFixed(1)}m/s`,
@@ -889,7 +894,7 @@ function drawLine() {
                         'white-space': 'nowrap'
                     }
                 });
-                
+
                 map.add(label);
                 trajectoryLabels.push(label);
             }
