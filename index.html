@@ -315,33 +315,70 @@ function getMyPos() {
     showToast('正在获取位置...', 'info');
     
     navigator.geolocation.getCurrentPosition(pos => {
-        lat1 = pos.coords.latitude;
-        lng1 = pos.coords.longitude;
-
-        document.getElementById('lat1').innerText = lat1.toFixed(6);
-        document.getElementById('lng1').innerText = lng1.toFixed(6);
-
+        // 获取定位数据
+        const newLat = pos.coords.latitude;
+        const newLng = pos.coords.longitude;
+        const accuracy = pos.coords.accuracy; // 定位精度（米）
+        
+        // 验证坐标有效性
+        if (isNaN(newLat) || isNaN(newLng) || newLat === 0 || newLng === 0) {
+            showToast('获取的坐标无效，请重试或手动输入', 'error');
+            showManualInput();
+            return;
+        }
+        
+        // 更新全局坐标变量
+        lat1 = newLat;
+        lng1 = newLng;
+        
+        // 更新界面坐标显示
+        const lat1Element = document.getElementById('lat1');
+        const lng1Element = document.getElementById('lng1');
+        if (lat1Element) lat1Element.innerText = lat1.toFixed(6);
+        if (lng1Element) lng1Element.innerText = lng1.toFixed(6);
+        
+        // 移除旧的炮位标记
         if (markerMe) map.remove(markerMe);
+        
+        // 创建新的炮位标记
         markerMe = new AMap.Marker({
             position: [lng1, lat1],
-            title: "炮位"
+            title: "炮位",
+            animation: 'AMAP_ANIMATION_DROP' // 添加掉落动画
         });
         map.add(markerMe);
         
         // 显示炮位坐标标签
         showLabelMe();
         
-        // 地图回到炮位坐标显示
-        map.setCenter([lng1, lat1]);
-        map.setZoom(16); // 设置合适的缩放级别
+        // 地图回到炮位坐标显示，确保使用最新坐标
+        if (map) {
+            map.setCenter([lng1, lat1]);
+            map.setZoom(16); // 设置合适的缩放级别
+            
+            // 强制地图重新渲染，确保最新坐标显示
+            map.setFitView();
+        }
         
         // 如果目标点已设置，重新计算并绘制连线
         if (lat2 && lng2) {
             calcAll();
         }
         
-        // 显示气泡通知
-        showToast('定位成功！地图已回到炮位位置', 'success');
+        // 显示定位成功通知，包含精度信息
+        let successMsg = '定位成功！地图已回到炮位位置';
+        if (accuracy) {
+            successMsg += `\n定位精度: ${accuracy.toFixed(0)}米`;
+        }
+        showToast(successMsg, 'success');
+        
+        // 控制台输出调试信息
+        console.log('定位成功:', {
+            纬度: lat1,
+            经度: lng1,
+            精度: accuracy + '米',
+            设备: isIOS ? 'iOS' : isAndroid ? 'Android' : 'PC'
+        });
     }, err => {
         let errorMsg = "定位失败";
         switch(err.code) {
