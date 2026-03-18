@@ -82,6 +82,7 @@
     <button onclick="getMyPos()">获取炮位坐标</button>
     <button id="mapTypeBtn" onclick="toggleMapType()" style="background:#28a745;margin-top:8px;">切换地图类型 (卫星)</button>
     <button id="gyroBtn" onclick="toggleGyroscope()" style="background:#007bff;margin-top:8px;">开启陀螺仪</button>
+    <div id="compass" style="margin-top:8px;padding:10px;background:#f8f9fa;border-radius:4px;text-align:center;">方位角: <span id="azimuthValue">0°</span></div>
 
     <div class="title">迫击炮型号 & 装药</div>
     <select id="mortarType">
@@ -191,6 +192,9 @@ function handleOrientation(event) {
         gamma: gamma.toFixed(1) + '°'
     });
     
+    // 更新方位角显示
+    updateAzimuthDisplay(alpha);
+    
     // 如果有炮位坐标，根据设备方向旋转地图
     if (lat1 && lng1 && map) {
         rotateMapByOrientation();
@@ -216,7 +220,19 @@ function toggleGyroscope() {
             if (map) {
                 map.setRotation(0);
             }
+            // 重置方位角显示
+            updateAzimuthDisplay(0);
         }
+    }
+}
+
+// 更新方位角显示
+function updateAzimuthDisplay(azimuth) {
+    const azimuthValue = document.getElementById('azimuthValue');
+    if (azimuthValue) {
+        // 确保方位角在 0-360 度范围内
+        const normalizedAzimuth = (azimuth % 360 + 360) % 360;
+        azimuthValue.textContent = normalizedAzimuth.toFixed(1) + '°';
     }
 }
 
