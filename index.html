@@ -352,6 +352,37 @@ function transformLng(x, y) {
     return ret;
 }
 
+// 通过地址查询坐标（地理编码）
+function getCoordByAddress(address) {
+    if (typeof AMap !== 'undefined' && AMap.plugin) {
+        AMap.plugin('AMap.Geocoder', function() {
+            const geocoder = new AMap.Geocoder({
+                city: '福州' // 默认城市
+            });
+            
+            geocoder.getLocation(address, function(status, result) {
+                if (status === 'complete' && result.info === 'OK') {
+                    const location = result.geocodes[0].location;
+                    console.log('地址查询结果:', {
+                        地址: address,
+                        纬度: location.lat,
+                        经度: location.lng,
+                        完整地址: result.geocodes[0].formattedAddress
+                    });
+                    
+                    // 显示查询结果
+                    showToast(`查询成功！\n纬度: ${location.lat.toFixed(6)}\n经度: ${location.lng.toFixed(6)}`, 'success');
+                } else {
+                    console.error('地址查询失败:', status, result);
+                    showToast('地址查询失败，请检查地址是否正确', 'error');
+                }
+            });
+        });
+    } else {
+        showToast('地图服务未加载，请稍后重试', 'error');
+    }
+}
+
 function getMyPos() {
     // 检查是否支持定位功能
     if (!navigator.geolocation) {
