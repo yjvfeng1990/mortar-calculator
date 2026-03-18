@@ -1,0 +1,118 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: #111;
+    color: #fff;
+    font-family: system-ui;
+}
+
+#map {
+    width: 100%;
+    height: 45vh;
+}
+
+.panel {
+    padding: 12px;
+}
+
+.title {
+    font-size: 16px;
+    color: #0cf;
+    margin: 10px 0;
+}
+
+.item {
+    background: #222;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.label {
+    font-size: 12px;
+    color: #999;
+}
+
+.val {
+    font-size: 18px;
+    color: #0fc;
+    margin-top: 4px;
+}
+
+select,
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 8px;
+    border-radius: 8px;
+    border: none;
+    background: #333;
+    color: #fff;
+    font-size: 16px;
+}
+
+button {
+    background: #06f;
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 4px;
+    border-radius: 4px;
+    border: none;
+    background: #333;
+    color: #fff;
+}
+
+/* 悬浮气泡通知样式 */
+.toast-notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 111, 255, 0.9);
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-size: 14px;
+    font-weight: bold;
+    z-index: 10000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    pointer-events: none;
+    max-width: 90%;
+    text-align: center;
+}
+
+.toast-notification.show {
+    opacity: 1;
+}
+
+.toast-notification.success {
+    background: rgba(40, 167, 69, 0.9);
+}
+
+.toast-notification.error {
+    background: rgba(220, 53, 69, 0.9);
+}
+
+.toast-notification.info {
+    background: rgba(23, 162, 184, 0.9);
+}
+
+/* 方位角显示样式 */
+#compass {
+    margin-top: 8px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    text-align: center;
+    color: #333;
+    font-weight: bold;
+}
