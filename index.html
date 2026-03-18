@@ -273,10 +273,42 @@ function toggleMapType() {
 // 1. 定位功能
 // ------------------------------
 function getMyPos() {
+    // 检查是否支持定位功能
     if (!navigator.geolocation) {
         showToast('您的浏览器不支持定位功能，请手动输入坐标', 'error');
         showManualInput();
         return;
+    }
+    
+    // 检查是否为 HTTPS 协议（iOS 需要 HTTPS 才能使用定位）
+    if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+        showToast('定位功能需要 HTTPS 协议，请手动输入坐标', 'error');
+        showManualInput();
+        return;
+    }
+    
+    // 检测设备类型并设置相应的定位参数
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isAndroid = /Android/.test(navigator.userAgent);
+    
+    let geoOptions = {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 0
+    };
+    
+    // 根据设备类型调整定位参数
+    if (isIOS) {
+        // iOS 设备的特殊处理
+        geoOptions.timeout = 20000; // iOS 设备可能需要更长的超时时间
+        geoOptions.enableHighAccuracy = true; // iOS 需要高精度定位
+    } else if (isAndroid) {
+        // Android 设备的特殊处理
+        geoOptions.timeout = 15000;
+        geoOptions.maximumAge = 5000; // Android 可以使用较短时间缓存的位置
+    } else {
+        // PC 设备
+        geoOptions.timeout = 10000;
     }
     
     // 显示加载状态的气泡通知
@@ -315,23 +347,26 @@ function getMyPos() {
         switch(err.code) {
             case err.PERMISSION_DENIED:
                 errorMsg = "定位权限被拒绝，请在浏览器设置中允许位置访问";
+                // 针对 iOS 设备的额外提示
+                if (isIOS) {
+                    errorMsg += "\niOS: 设置 > 隐私 > 位置服务";
+                } else if (isAndroid) {
+                    errorMsg += "\nAndroid: 设置 > 应用权限 > 位置";
+                }
                 break;
             case err.POSITION_UNAVAILABLE:
-                errorMsg = "位置信息不可用";
+                errorMsg = "位置信息不可用，请检查GPS或网络连接";
                 break;
             case err.TIMEOUT:
-                errorMsg = "定位超时";
+                errorMsg = "定位超时，请重试或手动输入坐标";
                 break;
             case err.UNKNOWN_ERROR:
-                errorMsg = "未知定位错误";
+                errorMsg = "未知定位错误，请手动输入坐标";
                 break;
         }
         showToast(errorMsg, 'error');
         showManualInput();
-    }, {
-        enableHighAccuracy: true,
-        timeout: 10000
-    });
+    }, geoOptions);
 }
 
 // 显示手动输入坐标的界面
