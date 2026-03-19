@@ -181,13 +181,24 @@ function calcAll() {
         
         // 对比方位角
         if (elevation !== -1 && elevation !== -2) {
-            const azDiff = Math.abs(azimuth - realTimeAzimuth);
+            // 计算方位角差值（考虑360度循环）
+            let azDiff = Math.abs(azimuth - realTimeAzimuth);
+            if (azDiff > 180) {
+                azDiff = 360 - azDiff;
+            }
+            
             if (azDiff < 1) {
                 azText += ' ✓';
-            } else if (azimuth > realTimeAzimuth) {
-                azText += ' →';
             } else {
-                azText += ' ←';
+                // 确定方向（考虑360度循环）
+                const clockwiseDiff = (realTimeAzimuth - azimuth + 360) % 360;
+                const counterClockwiseDiff = (azimuth - realTimeAzimuth + 360) % 360;
+                
+                if (clockwiseDiff < counterClockwiseDiff) {
+                    azText += ' ←'; // 逆时针调整
+                } else {
+                    azText += ' →'; // 顺时针调整
+                }
             }
         }
         
