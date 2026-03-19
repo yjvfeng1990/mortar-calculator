@@ -1,7 +1,6 @@
 // 陀螺仪功能模块
 
 let deviceOrientation = null;
-let isMobileDevice = false;
 let gyroEnabled = false;
 let gyroBtn = null;
 
