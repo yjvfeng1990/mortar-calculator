@@ -174,10 +174,10 @@ function calcAll() {
     // 只有当陀螺仪启用且有数据时才显示对比状态
     if (typeof gyroEnabled !== 'undefined' && gyroEnabled) {
         // 获取实时方位角和仰角
-        const azimuthValue = document.getElementById('azimuthValue');
-        const pitchValue = document.getElementById('pitchValue');
-        const realTimeAzimuth = azimuthValue ? parseFloat(azimuthValue.textContent) : 0;
-        const realTimePitch = pitchValue ? parseFloat(pitchValue.textContent) : 0;
+        const azRealTime = document.getElementById('azRealTime');
+        const elRealTime = document.getElementById('elRealTime');
+        const realTimeAzimuth = azRealTime ? parseFloat(azRealTime.textContent) : 0;
+        const realTimePitch = elRealTime ? parseFloat(elRealTime.textContent) : 0;
         
         // 对比方位角
         if (elevation !== -1 && elevation !== -2) {
