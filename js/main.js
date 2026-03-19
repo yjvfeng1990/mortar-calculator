@@ -184,6 +184,9 @@ function calcAll() {
             }
         }
         
+        // 对比方位角
+        document.getElementById('az').innerText = azText;
+        
         // 对比仰角
         if (elevation === -1) {
             document.getElementById('el').innerText = '未设置';
