@@ -32,13 +32,13 @@ function initMap() {
             mapConfig.touchZoom = true;
             mapConfig.scrollWheel = false;
             mapConfig.doubleClickZoom = true;
-            isMobileDevice = true;
+            window.isMobileDevice = true;
         }
         
         map = new AMap.Map('map', mapConfig);
         console.log('地图初始化成功，设备类型:', isMobile ? '手机' : isTablet ? '平板' : 'PC');
         
-        if (isMobileDevice && window.DeviceOrientationEvent) {
+        if (window.isMobileDevice && window.DeviceOrientationEvent) {
             gyroBtn = document.getElementById('gyroBtn');
             if (gyroBtn) {
                 gyroBtn.style.display = 'block';

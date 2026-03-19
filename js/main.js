@@ -319,7 +319,6 @@ function drawLine() {
     
     map.add(labelTarget);
     
-    const distance = calculateDistance(window.lat1, window.lng1, window.lat2, window.lng2);
     const midLng = (window.lng1 + window.lng2) / 2;
     const midLat = (window.lat1 + window.lat2) / 2;
     
