@@ -107,6 +107,32 @@ function handleOrientation(event) {
 }
 
 /**
+ * 校准指南针
+ */
+function calibrateCompass() {
+    if (!gyroEnabled) {
+        showToast('请先开启陀螺仪', 'info');
+        return;
+    }
+    
+    if (!deviceOrientation || deviceOrientation.alpha === null) {
+        showToast('获取陀螺仪数据失败，请重试', 'error');
+        return;
+    }
+    
+    // 计算校准偏移量，使当前方向为正北（0度）
+    // 修正陀螺仪数据方向：陀螺仪alpha值是逆时针增加，需要转换为顺时针增加以符合指南针标准
+    const alpha = deviceOrientation.alpha;
+    const currentAzimuth = (360 - alpha) % 360;
+    
+    // 设置校准偏移量，使当前方向为0度（正北）
+    gyroCalibrationOffset = currentAzimuth;
+    
+    console.log('指南针校准完成，当前alpha值:', alpha, '校准偏移量:', gyroCalibrationOffset);
+    showToast('指南针校准完成！', 'success');
+}
+
+/**
  * 重置陀螺仪校准
  */
 function resetGyroCalibration() {

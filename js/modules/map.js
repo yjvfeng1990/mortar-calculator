@@ -10,6 +10,7 @@ let polyline = null;
 let distanceLabel = null;
 let rangeCircle = null;
 let azimuthPointer = null;
+let northPointer = null;
 
 /**
  * 初始化地图
@@ -150,6 +151,35 @@ function drawRangeCircle() {
 }
 
 /**
+ * 显示正北指针
+ */
+function showNorthPointer() {
+    if (!window.lat1 || !window.lng1 || !map) return;
+    
+    if (northPointer) {
+        map.remove(northPointer);
+        northPointer = null;
+    }
+    
+    // 创建正北指针
+    northPointer = new AMap.Marker({
+        position: [window.lng1, window.lat1],
+        title: "正北指针",
+        icon: new AMap.Icon({
+            size: new AMap.Size(32, 32),
+            image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23000' stroke='%23ff0000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2v20M12 2l-8 8h16l-8-8z'/%3E%3C/svg%3E",
+            imageSize: new AMap.Size(32, 32)
+        }),
+        rotation: 0, // 固定指向正北
+        zIndex: 99
+    });
+    
+    map.add(northPointer);
+    
+    console.log('正北指针已创建');
+}
+
+/**
  * 显示炮位标签
  */
 function showLabelMe() {
@@ -179,6 +209,9 @@ function showLabelMe() {
         });
         map.add(labelMe);
     }
+    
+    // 显示正北指针
+    showNorthPointer();
 }
 
 /**
