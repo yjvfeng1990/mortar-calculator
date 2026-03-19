@@ -243,6 +243,12 @@ function calcAll() {
     
     drawLine();
     
+    // 根据方位角自动旋转地图
+    if (map && elevation !== -1 && elevation !== -2) {
+        map.setRotation(azimuth);
+        console.log('地图自动旋转到方位角:', azimuth.toFixed(1) + '°');
+    }
+    
     console.log('射击参数计算完成:', {
         distance: distance.toFixed(1) + 'm',
         azimuth: azimuth.toFixed(1) + '°',
