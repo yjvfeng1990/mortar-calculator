@@ -129,21 +129,6 @@ function toggleGyroscope() {
  * 更新方位角显示
  */
 function updateAzimuthDisplay(azimuth, pitch) {
-    const azimuthValue = document.getElementById('azimuthValue');
-    if (azimuthValue) {
-        const normalizedAzimuth = (azimuth % 360 + 360) % 360;
-        azimuthValue.textContent = normalizedAzimuth.toFixed(1) + '°';
-    }
-    
-    const pitchValue = document.getElementById('pitchValue');
-    if (pitchValue) {
-        let normalizedPitch = Math.abs(pitch);
-        if (normalizedPitch > 90) {
-            normalizedPitch = 180 - normalizedPitch;
-        }
-        pitchValue.textContent = normalizedPitch.toFixed(1) + '°';
-    }
-    
     // 更新射击参数区域的实时数据
     const azRealTime = document.getElementById('azRealTime');
     if (azRealTime) {

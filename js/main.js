@@ -10,6 +10,13 @@ window.lng2 = null;
 window.onload = function() {
     initMap();
     setTimeout(getMyPos, 1000);
+    
+    // 页面加载时自动开启陀螺仪
+    setTimeout(() => {
+        if (typeof toggleGyroscope === 'function') {
+            toggleGyroscope();
+        }
+    }, 500);
 };
 
 /**
