@@ -129,13 +129,14 @@ function toggleGyroscope() {
  * 更新方位角显示
  */
 function updateAzimuthDisplay(azimuth, pitch) {
-    // 直接使用陀螺仪数据，符合指南针标准：正北为0°/360°，顺时针旋转值增加
+    // 修正陀螺仪数据方向：陀螺仪alpha值是逆时针增加，需要转换为顺时针增加以符合指南针标准
+    const correctedAzimuth = (360 - azimuth) % 360;
     
     // 更新射击参数区域的实时数据
     const azRealTime = document.getElementById('azRealTime');
     if (azRealTime) {
         if (gyroEnabled) {
-            const normalizedAzimuth = (azimuth % 360 + 360) % 360;
+            const normalizedAzimuth = (correctedAzimuth % 360 + 360) % 360;
             azRealTime.textContent = normalizedAzimuth.toFixed(1) + '°';
         } else {
             azRealTime.textContent = '--';
@@ -162,8 +163,9 @@ function updateAzimuthDisplay(azimuth, pitch) {
 function updateLabelMeWithGyro(azimuth, pitch) {
     if (!window.lat1 || !window.lng1) return;
     
-    // 直接使用陀螺仪数据，符合指南针标准：正北为0°/360°，顺时针旋转值增加
-    const normalizedAzimuth = (azimuth % 360 + 360) % 360;
+    // 修正陀螺仪数据方向：陀螺仪alpha值是逆时针增加，需要转换为顺时针增加以符合指南针标准
+    const correctedAzimuth = (360 - azimuth) % 360;
+    const normalizedAzimuth = (correctedAzimuth % 360 + 360) % 360;
     
     let normalizedPitch = Math.abs(pitch);
     if (normalizedPitch > 90) {
@@ -207,8 +209,10 @@ function rotateMapByOrientation() {
     const rotation = deviceOrientation.alpha;
     
     if (rotation !== null && !isNaN(rotation)) {
+        // 修正陀螺仪数据方向：陀螺仪alpha值是逆时针增加，需要转换为顺时针增加以符合指南针标准
+        const correctedRotation = (360 - rotation) % 360;
         // 归一化旋转角度，确保在0-360度之间
-        const mapRotation = (rotation % 360 + 360) % 360;
+        const mapRotation = (correctedRotation % 360 + 360) % 360;
         map.setRotation(mapRotation);
         console.log('地图旋转角度:', mapRotation.toFixed(1) + '°');
     }
