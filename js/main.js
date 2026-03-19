@@ -208,11 +208,11 @@ function calculateAndDisplayData() {
     const chargeLevel = document.getElementById('chargeLevel').value;
     
     // 计算距离
-    const distance = calculator.calculateDistance(lat1, lng1, lat2, lat2);
+    const distance = calculator.calculateDistance(lat1, lng1, lat2, lng2);
     document.getElementById('distance').innerText = distance.toFixed(1) + '米';
     
     // 计算方位角
-    const az = calculator.calculateAzimuth(lat1, lng1, lat2, lat2);
+    const az = calculator.calculateAzimuth(lat1, lng1, lat2, lng2);
     let azText = '';
     if (az >= 0 && az < 90) {
         document.getElementById('az').innerText = az.toFixed(2) + '° (东北)';
