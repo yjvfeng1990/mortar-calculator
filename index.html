@@ -7,10 +7,21 @@
     <link rel="stylesheet" href="css/style.css">
     <!-- 高德地图 API -->
     <script type="text/javascript" src="https://webapi.amap.com/maps?v=1.4.15&key=8a9739048f8b3a1c0b44b65b4a8a3660"></script>
+     <!-- 配置文件 -->
+    <script src="js/config/config.js"></script>
+    <!-- 计算模块 -->
+    <script src="js/modules/calculator.js"></script>
+    <!-- 地图模块 -->
+    <script src="js/modules/map.js"></script>
+    <!-- 陀螺仪模块 -->
+    <script src="js/modules/gyroscope.js"></script>
+    <!-- 主逻辑 -->
+    <script src="js/main.js"></script>
 </head>
 <body>
     <!-- 悬浮气泡通知容器 -->
     <div id="toastContainer"></div>
+    <div id="map"></div>
     <div class="panel">
         <button onclick="getMyPos()">获取炮位坐标</button>
         <button id="mapTypeBtn" onclick="toggleMapType()" style="background:#28a745;margin-top:8px;">切换地图类型 (卫星)</button>
@@ -71,17 +82,8 @@
         </div>
     </div>
     
-    <div id="map"></div>
+   
 
-    <!-- 配置文件 -->
-    <script src="js/config/config.js"></script>
-    <!-- 计算模块 -->
-    <script src="js/modules/calculator.js"></script>
-    <!-- 地图模块 -->
-    <script src="js/modules/map.js"></script>
-    <!-- 陀螺仪模块 -->
-    <script src="js/modules/gyroscope.js"></script>
-    <!-- 主逻辑 -->
-    <script src="js/main.js"></script>
+   
 </body>
 </html>
