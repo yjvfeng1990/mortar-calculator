@@ -147,17 +147,25 @@ function updateAzimuthDisplay(azimuth, pitch) {
     // 更新射击参数区域的实时数据
     const azRealTime = document.getElementById('azRealTime');
     if (azRealTime) {
-        const normalizedAzimuth = (azimuth % 360 + 360) % 360;
-        azRealTime.textContent = normalizedAzimuth.toFixed(1) + '°';
+        if (gyroEnabled) {
+            const normalizedAzimuth = (azimuth % 360 + 360) % 360;
+            azRealTime.textContent = normalizedAzimuth.toFixed(1) + '°';
+        } else {
+            azRealTime.textContent = '--';
+        }
     }
     
     const elRealTime = document.getElementById('elRealTime');
     if (elRealTime) {
-        let normalizedPitch = Math.abs(pitch);
-        if (normalizedPitch > 90) {
-            normalizedPitch = 180 - normalizedPitch;
+        if (gyroEnabled) {
+            let normalizedPitch = Math.abs(pitch);
+            if (normalizedPitch > 90) {
+                normalizedPitch = 180 - normalizedPitch;
+            }
+            elRealTime.textContent = normalizedPitch.toFixed(1) + '°';
+        } else {
+            elRealTime.textContent = '--';
         }
-        elRealTime.textContent = normalizedPitch.toFixed(1) + '°';
     }
 }
 
