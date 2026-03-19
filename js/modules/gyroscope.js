@@ -5,6 +5,9 @@ let isMobileDevice = false;
 let gyroEnabled = false;
 let gyroBtn = null;
 
+// 暴露给全局作用域
+window.gyroEnabled = gyroEnabled;
+
 /**
  * 初始化设备方向（陀螺仪）
  */
@@ -83,7 +86,7 @@ function handleOrientation(event) {
         gamma: gamma.toFixed(1) + '°'
     });
     
-    updateAzimuthDisplay(alpha);
+    updateAzimuthDisplay(alpha, beta);
     
     if (window.lat1 && window.lng1) {
         updateLabelMeWithGyro(alpha, beta);
@@ -99,6 +102,7 @@ function handleOrientation(event) {
  */
 function toggleGyroscope() {
     gyroEnabled = !gyroEnabled;
+    window.gyroEnabled = gyroEnabled; // 更新全局变量
     
     if (gyroBtn) {
         if (gyroEnabled) {
@@ -113,7 +117,7 @@ function toggleGyroscope() {
             if (map) {
                 map.setRotation(0);
             }
-            updateAzimuthDisplay(0);
+            updateAzimuthDisplay(0, 0);
             if (window.lat1 && window.lng1) {
                 updateLabelMeWithGyro(0, 0);
             }
@@ -124,11 +128,20 @@ function toggleGyroscope() {
 /**
  * 更新方位角显示
  */
-function updateAzimuthDisplay(azimuth) {
+function updateAzimuthDisplay(azimuth, pitch) {
     const azimuthValue = document.getElementById('azimuthValue');
     if (azimuthValue) {
         const normalizedAzimuth = (azimuth % 360 + 360) % 360;
         azimuthValue.textContent = normalizedAzimuth.toFixed(1) + '°';
+    }
+    
+    const pitchValue = document.getElementById('pitchValue');
+    if (pitchValue) {
+        let normalizedPitch = Math.abs(pitch);
+        if (normalizedPitch > 90) {
+            normalizedPitch = 180 - normalizedPitch;
+        }
+        pitchValue.textContent = normalizedPitch.toFixed(1) + '°';
     }
 }
 

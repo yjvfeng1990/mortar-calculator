@@ -157,21 +157,68 @@ function calcAll() {
     const flightTime = calculateFlightTime(distance, elevation);
     
     document.getElementById('dist').innerText = Math.round(distance) + 'm';
-    document.getElementById('az').innerText = azimuth.toFixed(1) + '°';
     
+    // 对比方位角
+    let azText = azimuth.toFixed(1) + '°';
+    
+    // 对比仰角
     let elText = '';
-    if (elevation === -1) {
-        document.getElementById('el').innerText = '未设置';
-        elText = '未设置';
-    } else if (elevation === -2) {
-        document.getElementById('el').innerText = '超射程';
-        elText = '超射程';
+    
+    // 只有当陀螺仪启用且有数据时才显示对比状态
+    if (typeof gyroEnabled !== 'undefined' && gyroEnabled) {
+        // 获取实时方位角和仰角
+        const azimuthValue = document.getElementById('azimuthValue');
+        const pitchValue = document.getElementById('pitchValue');
+        const realTimeAzimuth = azimuthValue ? parseFloat(azimuthValue.textContent) : 0;
+        const realTimePitch = pitchValue ? parseFloat(pitchValue.textContent) : 0;
+        
+        // 对比方位角
+        if (elevation !== -1 && elevation !== -2) {
+            const azDiff = Math.abs(azimuth - realTimeAzimuth);
+            if (azDiff < 1) {
+                azText += ' ✓';
+            } else if (azimuth > realTimeAzimuth) {
+                azText += ' →';
+            } else {
+                azText += ' ←';
+            }
+        }
+        
+        // 对比仰角
+        if (elevation === -1) {
+            document.getElementById('el').innerText = '未设置';
+            elText = '未设置';
+        } else if (elevation === -2) {
+            document.getElementById('el').innerText = '超射程';
+            elText = '超射程';
+        } else {
+            elText = elevation.toFixed(1) + '°';
+            const elDiff = Math.abs(elevation - realTimePitch);
+            if (elDiff < 1) {
+                elText += ' ✓';
+            } else if (elevation > realTimePitch) {
+                elText += ' ↑';
+            } else {
+                elText += ' ↓';
+            }
+            document.getElementById('el').innerText = elText;
+        }
     } else {
-        document.getElementById('el').innerText = elevation.toFixed(1) + '°';
-        elText = elevation.toFixed(1) + '°';
+        // 没有陀螺仪数据，保持基本显示
+        document.getElementById('az').innerText = azText;
+        if (elevation === -1) {
+            document.getElementById('el').innerText = '未设置';
+            elText = '未设置';
+        } else if (elevation === -2) {
+            document.getElementById('el').innerText = '超射程';
+            elText = '超射程';
+        } else {
+            elText = elevation.toFixed(1) + '°';
+            document.getElementById('el').innerText = elText;
+        }
     }
     
-    updateLabelMe(azimuth.toFixed(1) + '°', elText);
+    updateLabelMe(azText, elText);
     
     drawLine();
     
