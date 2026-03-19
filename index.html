@@ -5,82 +5,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>迫击炮弹道计算器</title>
     <link rel="stylesheet" href="css/style.css">
-    <!-- 高德地图 API -->
-    <script type="text/javascript" src="https://webapi.amap.com/maps?v=1.4.15&key=8a9739048f8b3a1c0b44b65b4a8a3660"></script>
-     <!-- 配置文件 -->
-    <script src="js/config/config.js"></script>
-    <!-- 计算模块 -->
-    <script src="js/modules/calculator.js"></script>
-    <!-- 地图模块 -->
-    <script src="js/modules/map.js"></script>
-    <!-- 陀螺仪模块 -->
-    <script src="js/modules/gyroscope.js"></script>
-    <!-- 主逻辑 -->
-    <script src="js/main.js"></script>
 </head>
 <body>
-    <!-- 悬浮气泡通知容器 -->
-    <div id="toastContainer"></div>
-    <div id="map"></div>
-    <div class="panel">
-        <button onclick="getMyPos()">获取炮位坐标</button>
-        <button id="mapTypeBtn" onclick="toggleMapType()" style="background:#28a745;margin-top:8px;">切换地图类型 (卫星)</button>
-        <button id="gyroBtn" onclick="toggleGyroscope()" style="background:#007bff;margin-top:8px;">开启陀螺仪</button>
-        <div id="compass" style="margin-top:8px;padding:10px;background:#f8f9fa;border-radius:4px;text-align:center;">方位角: <span id="azimuthValue">0°</span></div>
-        
-        <div class="title">迫击炮型号 & 装药</div>
-        <select id="mortarType">
-            <option value="60">60mm</option>
-            <option value="82" selected>82mm</option>
-            <option value="120">120mm</option>
-        </select>
-        <select id="chargeLevel">
-            <option value="0">0号</option>
-            <option value="1">1号</option>
-            <option value="2" selected>2号</option>
-            <option value="3">3号</option>
-            <option value="4">4号</option>
-        </select>
 
-        <div class="title">炮位坐标</div>
-        <div class="item">
-            <div class="label">纬度:</div>
-            <div class="val" id="lat1">--</div>
-        </div>
-        <div class="item">
-            <div class="label">经度:</div>
-            <div class="val" id="lng1">--</div>
-        </div>
+<div id="map"></div>
+<div id="toastContainer"></div>
 
-        <div class="title">手动输入坐标</div>
-        <input type="text" id="inputLat" placeholder="纬度">
-        <input type="text" id="inputLng" placeholder="经度">
-        <button onclick="setMyPos()" style="background:#28a745;">设置炮位坐标</button>
+<div class="panel">
+    <button onclick="getMyPos()">获取炮位坐标</button>
+    <button id="mapTypeBtn" onclick="toggleMapType()" style="background:#28a745;margin-top:8px;">切换地图类型 (卫星)</button>
+    <button id="gyroBtn" onclick="toggleGyroscope()" style="background:#007bff;margin-top:8px;">开启陀螺仪</button>
+    <div id="compass" style="margin-top:8px;padding:10px;background:#f8f9fa;border-radius:4px;text-align:center;">方位角：<span id="azimuthValue">0°</span></div>
 
-        <div class="title">目标坐标</div>
-        <div class="item">
-            <div class="label">纬度:</div>
-            <div class="val" id="lat2">--</div>
-        </div>
-        <div class="item">
-            <div class="label">经度:</div>
-            <div class="val" id="lng2">--</div>
-        </div>
+    <div class="title">迫击炮型号 & 装药</div>
+    <select id="mortarType">
+        <option value="60">60mm</option>
+        <option value="82">82mm</option>
+        <option value="120">120mm</option>
+    </select>
+    <select id="chargeLevel">
+        <option value="0">0 号</option>
+        <option value="1">1 号</option>
+        <option value="2">2 号</option>
+        <option value="3">3 号</option>
+        <option value="4">4 号</option>
+    </select>
 
-        <div class="title">射击参数</div>
-        <div class="item">
-            <div class="label">距离:</div>
-            <div class="val" id="distance">--</div>
-        </div>
-        <div class="item">
-            <div class="label">方位角:</div>
-            <div class="val" id="az">--</div>
-        </div>
-        <div class="item">
-            <div class="label">仰角:</div>
-            <div class="val" id="el">--</div>
-        </div>
-    </div>
+    <div class="title">炮位</div>
+    <div class="item"><div class="label">纬度</div><div class="val" id="lat1">--</div></div>
+    <div class="item"><div class="label">经度</div><div class="val" id="lng1">--</div></div>
 
+    <div class="title">目标（点地图）</div>
+    <div class="item"><div class="label">纬度</div><div class="val" id="lat2">--</div></div>
+    <div class="item"><div class="label">经度</div><div class="val" id="lng2">--</div></div>
+
+    <div class="title">射击参数</div>
+    <div class="item"><div class="label">距离</div><div class="val" id="dist">--</div></div>
+    <div class="item"><div class="label">方位角</div><div class="val" id="az">--</div></div>
+    <div class="item"><div class="label">仰角</div><div class="val" id="el">--</div></div>
+</div>
+
+<!-- 高德地图 JS API -->
+<script src="https://webapi.amap.com/maps?v=1.4.15&key=3f876133492743a88e61f6b18914ac46"></script>
+<!-- 配置文件 -->
+<script src="js/config/config.js"></script>
+<!-- 工具函数 -->
+<script src="js/utils/coordinate.js"></script>
+<script src="js/utils/ui.js"></script>
+<!-- 功能模块 -->
+<script src="js/modules/gyroscope.js"></script>
+<script src="js/modules/map.js"></script>
+<script src="js/modules/ballistics.js"></script>
+<!-- 主逻辑 -->
+<script src="js/main.js"></script>
 </body>
 </html>

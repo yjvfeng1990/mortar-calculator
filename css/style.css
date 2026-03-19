@@ -13,14 +13,10 @@ body {
 #map {
     width: 100%;
     height: 45vh;
-    position: relative;
-    z-index: 1;
 }
 
 .panel {
     padding: 12px;
-    position: relative;
-    z-index: 10;
 }
 
 .title {
@@ -110,13 +106,55 @@ input {
     background: rgba(23, 162, 184, 0.9);
 }
 
-/* 方位角显示样式 */
-#compass {
-    margin-top: 8px;
-    padding: 10px;
-    background: #f8f9fa;
-    border-radius: 4px;
-    text-align: center;
-    color: #333;
-    font-weight: bold;
+/* 平板设备适配 */
+@media (min-width: 768px) and (max-width: 1024px) {
+    #map {
+        height: 50vh;
+    }
+    
+    .panel {
+        padding: 16px;
+    }
+    
+    .title {
+        font-size: 18px;
+    }
+    
+    .val {
+        font-size: 20px;
+    }
+}
+
+/* PC 设备适配 */
+@media (min-width: 1025px) {
+    #map {
+        height: 60vh;
+    }
+    
+    .panel {
+        padding: 20px;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .title {
+        font-size: 20px;
+    }
+    
+    .val {
+        font-size: 22px;
+    }
+    
+    button,
+    select {
+        font-size: 18px;
+        padding: 14px;
+    }
+}
+
+/* 手机横屏适配 */
+@media (max-width: 767px) and (orientation: landscape) {
+    #map {
+        height: 55vh;
+    }
 }
