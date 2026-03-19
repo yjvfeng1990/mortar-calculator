@@ -9,6 +9,7 @@ let labelTarget = null;
 let polyline = null;
 let distanceLabel = null;
 let rangeCircle = null;
+let azimuthPointer = null;
 
 /**
  * 初始化地图
@@ -191,4 +192,35 @@ function autoFitView() {
     } else {
         map.setFitView([markerMe], false, [50, 50, 50, 50], 16);
     }
+}
+
+/**
+ * 更新方位指针
+ */
+function updateAzimuthPointer(azimuth) {
+    if (!window.lat1 || !window.lng1 || !map) {
+        return;
+    }
+    
+    if (azimuthPointer) {
+        map.remove(azimuthPointer);
+        azimuthPointer = null;
+    }
+    
+    // 创建方位指针
+    azimuthPointer = new AMap.Marker({
+        position: [window.lng1, window.lat1],
+        title: "方位指针",
+        icon: new AMap.Icon({
+            size: new AMap.Size(24, 24),
+            image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300f'%3E%3Cpath d='M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z'/%3E%3C/svg%3E",
+            imageSize: new AMap.Size(24, 24)
+        }),
+        rotation: azimuth,
+        zIndex: 101
+    });
+    
+    map.add(azimuthPointer);
+    
+    console.log('方位指针已更新，角度:', azimuth.toFixed(1) + '°');
 }

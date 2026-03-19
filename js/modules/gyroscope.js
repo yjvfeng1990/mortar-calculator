@@ -93,6 +93,12 @@ function handleOrientation(event) {
     
     if (window.lat1 && window.lng1 && map) {
         rotateMapByOrientation();
+        // 修正陀螺仪数据方向后更新方位指针
+        const correctedAzimuth = (360 - alpha) % 360;
+        const normalizedAzimuth = (correctedAzimuth % 360 + 360) % 360;
+        if (typeof updateAzimuthPointer === 'function') {
+            updateAzimuthPointer(normalizedAzimuth);
+        }
     }
 }
 
@@ -119,6 +125,10 @@ function toggleGyroscope() {
             updateAzimuthDisplay(0, 0);
             if (window.lat1 && window.lng1) {
                 updateLabelMeWithGyro(0, 0);
+                // 关闭陀螺仪时移除方位指针
+                if (typeof updateAzimuthPointer === 'function') {
+                    updateAzimuthPointer(0);
+                }
             }
         }
     }
