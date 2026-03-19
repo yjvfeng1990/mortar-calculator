@@ -241,7 +241,7 @@ function calcAll() {
     
     updateLabelMe(azText, elText);
     
-    drawLine();
+    drawLine(distance, azimuth, elevation, flightTime);
     
     // 根据方位角自动旋转地图
     if (map && elevation !== -1 && elevation !== -2) {
@@ -276,8 +276,12 @@ function updateLabelMe(azText, elText) {
 
 /**
  * 绘制炮位和目标点之间的连线
+ * @param {number} distance - 距离
+ * @param {number} azimuth - 方位角
+ * @param {number} elevation - 仰角
+ * @param {number} flightTime - 飞行时间
  */
-function drawLine() {
+function drawLine(distance, azimuth, elevation, flightTime) {
     if (!window.lat1 || !window.lng1 || !window.lat2 || !window.lng2) return;
     
     if (polyline) map.remove(polyline);
@@ -292,11 +296,6 @@ function drawLine() {
     });
     
     map.add(polyline);
-    
-    const distance = calculateDistance(window.lat1, window.lng1, window.lat2, window.lng2);
-    const azimuth = calculateAzimuth(window.lat1, window.lng1, window.lat2, window.lng2);
-    const elevation = calculateElevation(distance, document.getElementById('mortarType').value, document.getElementById('chargeLevel').value);
-    const flightTime = calculateFlightTime(distance, elevation);
     
     let labelText = '目标\n' + window.lat2.toFixed(4) + ', ' + window.lng2.toFixed(4);
     if (elevation !== -1 && elevation !== -2) {

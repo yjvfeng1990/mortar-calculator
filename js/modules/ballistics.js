@@ -28,7 +28,7 @@ function calculateElevation(distance, mortarType, chargeLevel) {
 }
 
 /**
- * 计算方位�? */
+ * 计算方位角 */
 function calculateAzimuth(lat1, lng1, lat2, lng2) {
     const y = Math.sin((lng2 - lng1) * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180);
     const x = Math.cos(lat1 * Math.PI / 180) * Math.sin(lat2 * Math.PI / 180) -
@@ -61,7 +61,7 @@ function calculateFlightTime(distance, elevation) {
 }
 
 /**
- * 获取最大射�? */
+ * 获取最大射程 */
 function getMaxRange(mortarType, chargeLevel) {
     return config.maxRangeData[mortarType] && config.maxRangeData[mortarType][chargeLevel];
 }
