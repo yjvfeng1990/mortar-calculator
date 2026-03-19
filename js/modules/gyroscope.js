@@ -4,6 +4,8 @@ let deviceOrientation = null;
 let gyroEnabled = false;
 let gyroBtn = null;
 let gyroCalibrationOffset = 0; // 陀螺仪校准偏移量
+let isCalibrating = false; // 是否正在校准
+let calibrationData = []; // 校准数据
 
 // 暴露给全局作用域
 window.gyroEnabled = gyroEnabled;
@@ -107,6 +109,56 @@ function handleOrientation(event) {
 }
 
 /**
+ * 自动校准指南针
+ */
+function autoCalibrateCompass() {
+    isCalibrating = true;
+    calibrationData = [];
+    
+    showToast('正在校准指南针，请稍候...', 'info');
+    
+    // 收集50个校准数据点
+    const calibrationInterval = setInterval(() => {
+        if (deviceOrientation && deviceOrientation.alpha !== null) {
+            calibrationData.push(deviceOrientation.alpha);
+            console.log('校准数据收集:', calibrationData.length);
+        }
+        
+        if (calibrationData.length >= 50) {
+            clearInterval(calibrationInterval);
+            finishAutoCalibration();
+        }
+    }, 100);
+    
+    // 10秒后自动结束校准
+    setTimeout(() => {
+        if (isCalibrating) {
+            clearInterval(calibrationInterval);
+            finishAutoCalibration();
+        }
+    }, 10000);
+}
+
+/**
+ * 完成自动校准
+ */
+function finishAutoCalibration() {
+    if (calibrationData.length > 0) {
+        // 计算校准偏移量，使正北为0度
+        // 找到最小的alpha值，作为正北方向
+        const minAlpha = Math.min(...calibrationData);
+        gyroCalibrationOffset = minAlpha;
+        
+        console.log('校准完成，偏移量:', gyroCalibrationOffset);
+        showToast('指南针校准完成！', 'success');
+    } else {
+        showToast('校准失败，使用默认校准值', 'info');
+    }
+    
+    isCalibrating = false;
+}
+
+/**
  * 切换陀螺仪状态
  */
 function toggleGyroscope() {
@@ -119,6 +171,8 @@ function toggleGyroscope() {
             gyroBtn.style.background = '#dc3545';
             showToast('陀螺仪已开启，地图将自动旋转', 'success');
             initDeviceOrientation();
+            // 自动校准指南针
+            setTimeout(autoCalibrateCompass, 1000);
         } else {
             gyroBtn.innerText = '开启陀螺仪';
             gyroBtn.style.background = '#007bff';
