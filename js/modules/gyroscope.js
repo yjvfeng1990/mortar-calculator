@@ -204,7 +204,8 @@ function rotateMapByOrientation() {
     const rotation = deviceOrientation.alpha;
     
     if (rotation !== null && !isNaN(rotation)) {
-        const mapRotation = rotation;
+        // 归一化旋转角度，确保在0-360度之间
+        const mapRotation = (rotation % 360 + 360) % 360;
         map.setRotation(mapRotation);
         console.log('地图旋转角度:', mapRotation.toFixed(1) + '°');
     }
