@@ -129,11 +129,14 @@ function toggleGyroscope() {
  * 更新方位角显示
  */
 function updateAzimuthDisplay(azimuth, pitch) {
+    // 镜像处理方位角（180度反转）
+    const mirroredAzimuth = (360 - azimuth) % 360;
+    
     // 更新射击参数区域的实时数据
     const azRealTime = document.getElementById('azRealTime');
     if (azRealTime) {
         if (gyroEnabled) {
-            const normalizedAzimuth = (azimuth % 360 + 360) % 360;
+            const normalizedAzimuth = (mirroredAzimuth % 360 + 360) % 360;
             azRealTime.textContent = normalizedAzimuth.toFixed(1) + '°';
         } else {
             azRealTime.textContent = '--';
@@ -160,7 +163,9 @@ function updateAzimuthDisplay(azimuth, pitch) {
 function updateLabelMeWithGyro(azimuth, pitch) {
     if (!window.lat1 || !window.lng1) return;
     
-    const normalizedAzimuth = (azimuth % 360 + 360) % 360;
+    // 镜像处理方位角（180度反转）
+    const mirroredAzimuth = (360 - azimuth) % 360;
+    const normalizedAzimuth = (mirroredAzimuth % 360 + 360) % 360;
     
     let normalizedPitch = Math.abs(pitch);
     if (normalizedPitch > 90) {

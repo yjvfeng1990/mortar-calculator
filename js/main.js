@@ -287,16 +287,20 @@ function drawLine() {
     
     map.add(polyline);
     
-    const flightTime = calculateFlightTime(
-        calculateDistance(window.lat1, window.lng1, window.lat2, window.lng2),
-        calculateElevation(
-            calculateDistance(window.lat1, window.lng1, window.lat2, window.lng2),
-            document.getElementById('mortarType').value,
-            document.getElementById('chargeLevel').value
-        )
-    );
+    const distance = calculateDistance(window.lat1, window.lng1, window.lat2, window.lng2);
+    const azimuth = calculateAzimuth(window.lat1, window.lng1, window.lat2, window.lng2);
+    const elevation = calculateElevation(distance, document.getElementById('mortarType').value, document.getElementById('chargeLevel').value);
+    const flightTime = calculateFlightTime(distance, elevation);
     
-    const labelText = '目标\n' + window.lat2.toFixed(4) + ', ' + window.lng2.toFixed(4) + '\n飞行时间:' + flightTime.toFixed(1) + 's';
+    let labelText = '目标\n' + window.lat2.toFixed(4) + ', ' + window.lng2.toFixed(4);
+    if (elevation !== -1 && elevation !== -2) {
+        labelText += '\n方位角:' + azimuth.toFixed(1) + '°\n仰角:' + elevation.toFixed(1) + '°';
+    } else if (elevation === -1) {
+        labelText += '\n仰角:未设置';
+    } else if (elevation === -2) {
+        labelText += '\n仰角:超射程';
+    }
+    labelText += '\n飞行时间:' + flightTime.toFixed(1) + 's';
     
     labelTarget = new AMap.Text({
         text: labelText,
